@@ -25,68 +25,82 @@
         <script>
             async function getData() {
                 try {
-                    //issue GET request to /data
-                    const response = await axios.get("/data", {
-                        "params": {
-                            "type": document.getElementById("type").value,
-                            "limit": document.getElementById("limit").value
+                    var userType = document.getElementById("type").value;
+                    var userLimit = document.getElementById("limit").value;
+                    var response = await axios.get("/data", {
+                        params : {
+                        type : userType,
+                        limit : userLimit
                         }
-                    })
+                    }
+                    )
+                    console.log(response.data);
                     generateTable(response.data);
-                } catch (error) {
-                    console.log(error);
+
+                }
+                catch(err) {
+                    console.error(err);
                 }
             }
 
-            function generateTable(dataObj) {
-                const resultDivElem = document.getElementById("result");
-                while (resultDivElem.firstChild) {
-                    resultDivElem.firstChild.remove();
-                }
-                const h2Elem = document.createElement("h2");
-                h2Elem.innerText = dataObj["type"];
-                resultDivElem.appendChild(h2Elem);
-                /* <table class="table">
-                        <tbody>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                            </tr>
-                            <tr>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table> */
-                let tableElem = document.createElement("table");
-                tableElem.className = "table";
-                const tBodyElem = document.createElement("tbody");
-                let trElem = document.createElement("tr");
-                //retrieve and create the table heading labels
-                console.log(dataObj["records"]);
-                const tblHeadingLabels = Object.keys(dataObj["records"][0]);
-                for (let headingLabel of tblHeadingLabels) {
-                    let thElem = document.createElement("th");
-                    thElem.innerText = headingLabel;
-                    trElem.appendChild(thElem);
-                }
-                tBodyElem.appendChild(trElem);
-                //create the table data
+            function generateTable(obj) {
+              var type = obj.type;
+              var arr = obj.records;
+
+              // console.log(arr);
+
+              var target = document.getElementById("result");
+              
+              // Create H2 Elem
+              const h2Elem = document.createElement("h2");
+              const h2ElemTextNode = document.createTextNode(type);
+              h2Elem.appendChild(h2ElemTextNode);
+
+
+              // clear target first
+              target.replaceChildren();
+
+              target.appendChild(h2Elem);
+
+              // Create <table>
                 
-                for (let i=0; i< dataObj["records"].length; i++) {
-                    const trElem = document.createElement("tr");
-                    let elem = dataObj["records"][i];
-                    for (let j=0; j<tblHeadingLabels.length; j++) {
-                        const tdElem = document.createElement("td");
-                        const elemVal = elem[tblHeadingLabels[j]];
-                        tdElem.innerText = elemVal;
-                        trElem.appendChild(tdElem);
-                    }
-                    tBodyElem.appendChild(trElem);
+              var table = document.createElement("table");
+
+              table.setAttribute("class", "table table-striped");
+
+              var tableBody = document.createElement("tbody");
+              var tableTHrow = document.createElement("tr");
+
+              var firstObj = arr[0];
+              for (let heading in firstObj) {
+                  var tableTH = document.createElement("th");
+                  const thText = document.createTextNode(heading);
+                  tableTH.appendChild(thText);
+                  tableTHrow.appendChild(tableTH);
+              }
+
+              tableBody.appendChild(tableTHrow);
+              target.appendChild(tableBody);
+
+
+
+              for (let arrObj of arr) {
+                var tableRow = document.createElement("tr");
+                for (let heading in arrObj) {
+                    var tableData = document.createElement("td");
+                    var value = arrObj[heading];
+                    var tdTextNode = document.createTextNode(value);
+                    
+                    tableData.appendChild(tdTextNode);
+                    tableRow.appendChild(tableData);
                 }
-                tableElem.appendChild(tBodyElem);
-                resultDivElem.appendChild(tableElem);
+                tableBody.appendChild(tableRow);
+              }
+
+                table.appendChild(tableBody);
+                target.appendChild(table);
             }
+
         </script>
 </body>
 </html>
-<!-- pass? -->
